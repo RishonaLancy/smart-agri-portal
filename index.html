@@ -1,1 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Agriculture & Irrigation Portal</title>
+  <script src="https://tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6 text-green-800">Smart Agriculture & Irrigation Optimization Portal</h1>
+    
+    <!-- Analytics Summary Bar -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-white p-4 rounded shadow">
+        <p class="text-gray-500 text-sm">Total Water Consumption</p>
+        <p id="totalWater" class="text-2xl font-semibold">0 L</p>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <p class="text-gray-500 text-sm">Lowest Moisture Field</p>
+        <p id="lowestMoisture" class="text-2xl font-semibold">-</p>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <p class="text-gray-500 text-sm">Water-Saving Target</p>
+        <p class="text-2xl font-semibold text-green-600">-20%</p>
+      </div>
+      <div class="bg-white p-4 rounded shadow">
+        <p class="text-gray-500 text-sm">Irrigation Completion</p>
+        <p id="completionStatus" class="text-2xl font-semibold">80%</p>
+      </div>
+    </div>
 
+    <!-- Filter Section -->
+    <div class="mb-4 flex gap-4">
+      <input type="text" id="filterInput" placeholder="Filter by Crop Type or Field ID..." class="p-2 border rounded w-full md:w-1/3" onkeyup="filterTable()">
+    </div>
+
+    <!-- Fields Table -->
+    <div class="bg-white rounded shadow overflow-hidden">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-green-700 text-white">
+            <th class="p-3">Field ID</th>
+            <th class="p-3">Crop Type</th>
+            <th class="p-3">Soil Moisture (%)</th>
+            <th class="p-3">Water Consumption (L)</th>
+            <th class="p-3">Temperature (°C)</th>
+            <th class="p-3">Crop Health</th>
+            <th class="p-3">Irrigation Status</th>
+          </tr>
+        </thead>
+        <tbody id="fieldTable">
+          <!-- Dynamically populated or static rows -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const fields = [
+      { id: "FLD-01", crop: "Wheat", moisture: 25, water: 450, temp: 28, health: "Moderate" },
+      { id: "FLD-02", crop: "Rice", moisture: 42, water: 820, temp: 31, health: "Good" },
+      { id: "FLD-03", crop: "Corn", moisture: 18, water: 610, temp: 29, health: "Critical" },
+      { id: "FLD-04", crop: "Sugarcane", moisture: 55, water: 950, temp: 33, health: "Optimal" },
+      { id: "FLD-05", crop: "Tomato", moisture: 29, water: 320, temp: 27, health: "Moderate" }
+    ];
+
+    function renderTable() {
+      const tbody = document.getElementById("fieldTable");
+      tbody.innerHTML = "";
+      let totalWater = 0;
+      let lowestField = fields[0];
+
+      fields.forEach(f => {
+        totalWater += f.water;
+        if (f.moisture < lowestField.moisture) lowestField = f;
+        const alertTrigger = f.moisture < 30;
+
+        tbody.innerHTML += `
+          <tr class="border-b ${alertTrigger ? 'bg-red-50' : ''}">
+            <td class="p-3 font-medium">${f.id}</td>
+            <td class="p-3">${f.crop}</td>
+            <td class="p-3">${f.moisture}% ${alertTrigger ? '<span class="text-red-600 font-bold">(ALERT: Irrigation Needed)</span>' : ''}</td>
+            <td class="p-3">${f.water} L</td>
+            <td class="p-3">${f.temp} °C</td>
+            <td class="p-3">${f.health}</td>
+            <td class="p-3">${alertTrigger ? 'Scheduled' : 'Idle'}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById("totalWater").innerText = `${totalWater} L`;
+      document.getElementById("lowestMoisture").innerText = `${lowestField.id} (${lowestField.moisture}%)`;
+    }
+
+    function filterTable() {
+      const query = document.getElementById("filterInput").value.toLowerCase();
+      const rows = document.querySelectorAll("#fieldTable tr");
+      rows.rowList = Array.from(rows).forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
+      });
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
